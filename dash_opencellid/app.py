@@ -54,7 +54,7 @@ def init_client(client):
     if client is None or client.status != "running":
         print("Starting or connecting to Coiled cluster...")
         cluster = coiled.Cluster(
-            name="cell-towers-cluster-1",
+            name="cell-towers-cluster-gus",
             software="cell-towers-env",
             n_workers=2,
             worker_cpu=4,
@@ -84,14 +84,17 @@ def load_df():
     aws_secret = os.environ['AWS_SECRET_ACCESS_KEY']
     df = dd.read_parquet(
         # "s3://databyjp/plotly/cell_towers.parq",
-        "s3://databyjp/plotly/cell_towers_sm.parq",
+        #"s3://databyjp/plotly/cell_towers_sm.parq",
+        "s3://gus-coiled/cell_towers.parq",
         storage_options={"key": aws_key, 'secret': aws_secret}
     )
     print("Starting preprocessing...")
     df["radio"] = df["radio"].cat.as_known()
+    print ("Foo")
     df["Description"] = df["Description"].cat.as_known()
     df["Status"] = df["Status"].cat.as_known()
     df["log10_range"] = np.log10(df["range"])
+    print ("Selecting columns to persist")
     
     # Select columns to persist
     df = df[
@@ -163,8 +166,11 @@ print("Finished pre-calculations")
 
 
 # Radio constants
-radio_categories = ["UMTS", "LTE", "GSM", "CDMA", "NR"]
-radio_colors_list = ["green", "red", "blue", "orange", "white"]
+## Gus: exception that one category is not found
+#radio_categories = ["UMTS", "LTE", "GSM", "CDMA", "NR"]
+#radio_colors_list = ["green", "red", "blue", "orange", "white"]
+radio_categories = ["UMTS", "LTE", "GSM", "CDMA"]
+radio_colors_list = ["green", "red", "blue", "orange"]
 radio_colors = {cat: color for cat, color in zip(radio_categories, radio_colors_list)}
 
 # Colors
